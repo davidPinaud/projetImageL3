@@ -1,54 +1,45 @@
 package projetImage;
 
 import java.awt.image.BufferedImage;
-import java.io.FileInputStream;
 import java.io.IOException;
+import java.util.Collections;
+import java.util.Vector;
 
-import javafx.scene.Scene;
-import javafx.scene.effect.ColorAdjust;
-import javafx.scene.image.Image;
-import javafx.scene.image.ImageView;
-import javafx.stage.Stage;
-import javafx.application.Application;
-import javafx.embed.swing.SwingFXUtils;
 
-public class nbMarche extends Application{
-	static final int SEUIL = 125;
+
+public class nbMarche{
+	static int bestGuess;
+	static Vector<Integer> listeNbDeMarches = null ;
+
 
 	public static void main(String[] args)  {
-		launch(args);
-		//ColorAdjust colorAdjust = new ColorAdjust();
-		//colorAdjust.setContrast(0.1);
-		//colorAdjust.setHue(-0.05);
-		//colorAdjust.setBrightness(0.1);
-		//colorAdjust.setSaturation(0.2);
-
-		//Image image = new Image(new FileInputStream("/Users/david_pinaud/Desktop/ImageL3-master/imagesProjet/escalier1.jpg"));
-		//ImageView imageView = new ImageView();
-		//imageView.setEffect(colorAdjust);
+		String chemin="/Users/davidpinaud/Desktop/ImageL3-master/imagesProjet/escalier5.jpeg";
+		BufferedImage image=Util.chargerImage(chemin);
 		
-		//BufferedImage image5=SwingFXUtils.fromFXImage(image,null);
+		
+		BufferedImage image2=Util.chargerImage(chemin);
+		Util.imshow(image2,"Image de départ");
+		
+
+		listeNbDeMarches=(Vector<Integer>) Util.nbDeLigne(image);
+		System.out.println(listeNbDeMarches);
+
+		Collections.sort(listeNbDeMarches);
+		int mediane=listeNbDeMarches.get(1);
+		if(Math.abs(listeNbDeMarches.get(0)-mediane)<=Math.abs(listeNbDeMarches.get(2)-mediane)) {
+			bestGuess=(mediane+listeNbDeMarches.get(0))/2;
+		}else {
+			bestGuess=(mediane+listeNbDeMarches.get(2))/2;
+		}
+		
+		System.out.println("nombre minimum de marches trouvé : "+listeNbDeMarches.get(0)+
+				"\nnombre maximum de marches trouvé : "+listeNbDeMarches.get(listeNbDeMarches.size()-1)+
+				"\nmeilleure approximation : "+bestGuess);
 		
 		
 
 	}
 
-	@Override
-	public void start(Stage stage) throws Exception {
-		String chemin="/Users/david_pinaud/Desktop/ImageL3-master/imagesProjet/escalier4.jpeg";
-		BufferedImage image5=Util.chargerImage(chemin);
-		
-		
-		BufferedImage image6=Util.chargerImage(chemin);
-		Util.imshow(image6);
-
-
-		System.out.println(Util.nbDeLigne(image5, 125,chemin));
-		
-		//stage.setScene(new Scene(new AfficheImage(image5)));
-//		stage.sizeToScene();
-//		stage.show();
-	}
 	
 	//Calculer le nb de ligne
 		//Contraster l'image pour augmenter les différences des RGB des pixels (pour avoir plus de marge sur le seuil) pas fait
