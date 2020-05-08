@@ -48,23 +48,6 @@ public class nbMarche {
 
 	}
 
-	// Calculer le nb de ligne
-	// Contraster l'image pour augmenter les différences des RGB des pixels (pour
-	// avoir plus de marge sur le seuil) pas fait
-	// Ostu pour calculer le seuil pas fait
-	// Calculer l'histogramme
-	// Binariser
-	// Normaliser
-	// Mettre en niveaux de gris
-	// filtre median pour enlever le bruit
-	//
 
-	// Mettre en niveaux de gris
-	// normalise
-	// ostu pour le seuil
-	// binariser
-	// filtre median
-	// faire lhistogramme de projection
-	// calculer le nb de ligne
 
 }
