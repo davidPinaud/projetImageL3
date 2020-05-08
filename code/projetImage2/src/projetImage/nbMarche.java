@@ -17,7 +17,7 @@ public class nbMarche {
 	static Vector<Integer> listeNbDeMarches = null; // tableau avec les approximations du nombre de marche
 
 	public static void main(String[] args) {
-		String chemin = "/Users/davidpinaud/Desktop/ImageL3-master/imagesProjet/escalier5.jpeg"; // chemin vers l'image
+		String chemin = "/Users/davidpinaud/GitHub/projetImageL3/code/projetImage2/images_escaliers/escalier5.jpeg"; // chemin vers l'image
 																									// a traiter
 
 		BufferedImage image = Util.chargerImage(chemin);
