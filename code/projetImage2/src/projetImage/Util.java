@@ -12,10 +12,21 @@ import javax.swing.ImageIcon;
 import javax.swing.JFrame;
 import javax.swing.JLabel;
 
+/**
+ * Classe utilitaire avec les fonctions nécessaire au bon fonctionnement du
+ * programme. L'appel à nbLigne(BufferedImage image) va lancer le mécanisme du
+ * calcul du nombre de marche. L'algorithme fonctionne mieux sur une image
+ * d'escalier prise de face, centré, avec un bon niveau de luminosité et pas
+ * autre chose dans le cadre
+ * 
+ * @author davidpinaud
+ *
+ */
 public class Util {
 
-	static int seuil;
-	private static BufferedImage imageTemp;
+	static int seuil; // seuil de l'image a traiter
+	private static BufferedImage imageTemp; // image tempon qui est l'image a traiter binarisé, elle est utilisé pour le
+											// filtrage médian 3x3 de l'image à traitze
 
 	/**
 	 * Fonction permettant de montrer une image avec Jframe.
@@ -219,9 +230,9 @@ public class Util {
 		Float wClasseInf = null, wClasseSup = null;
 		List<Float> tableauVarianceIntraClasse = new Vector<>(); // List ou l'index est le seuil (0 à 255) et la valeur
 																	// est la variance intra classe pour ce seuil;
-		
+
 		// POUR TOUS LES SEUILS NOUS ALLONS CALCULER LA VARIANCE INTRA CLASSE
-		for (int k = 0; k < 255; k++) { 
+		for (int k = 0; k < 255; k++) {
 			classeInferieure = new Vector<>();
 			classeSuperieure = new Vector<>();
 			// REPARTITION DES PIXELS DANS LES CLASSES EN FONCTION DU SEUIL
@@ -242,7 +253,7 @@ public class Util {
 			wClasseSup = (float) classeSuperieure.size() / (float) (classeInferieure.size() + classeSuperieure.size());
 			varianceIntraClasse = wClasseInf * varianceClasse(moyenneValeurPixel(classeInferieure), classeInferieure)
 					+ wClasseSup * varianceClasse(moyenneValeurPixel(classeSuperieure), classeSuperieure);
-			
+
 			// ON MET LA VARIANCE INTRA CLASSE DANS LE TABLEAU POUR LES COMPARER
 			tableauVarianceIntraClasse.add(varianceIntraClasse);
 
@@ -251,15 +262,23 @@ public class Util {
 		// QUAND TOUTES LES VARIANCES INTRA CLASSES ONT ETE CALCULE ON PREND LA PLUS
 		// PETITE
 
-		return getIndexMinList(tableauVarianceIntraClasse); // on peut prendre l'index car la liste est ordonné de façon à ce
+		return getIndexMinList(tableauVarianceIntraClasse); // on peut prendre l'index car la liste est ordonné de façon
+															// à ce
 															// que à l'index k, ce soit la valeur de la
 															// varianceIntraClasse pour un seuil de niveau k
 	}
 
 	/**
-	 * Cette fonction permet de renvoyer une liste d'entier qui sont les estimations du nombre de marches de l'image donné.
+	 * Cette fonction permet de renvoyer une liste d'entier qui sont les estimations
+	 * du nombre de marches de l'image donné. Elle fait cela en comptants le nombres
+	 * de changements de couleurs de l'histogramme de projection verticallement. On
+	 * choisis les abscisses auxquels on compte a partir du plus grand sommet de
+	 * l'histogramme de projection que l'on divise en 2,3 et 4.
+	 * 
 	 * @param image Une image d'escalier.
-	 * @return Une liste contenant les estimations du nombre de marches. 
+	 * @return Une liste contenant les estimations du nombre de marches la première
+	 *         est pour un comptage avec comme valeur d'abscisse le max du sommet /
+	 *         2 puis /3 et enfin /4.
 	 */
 	public static Vector<Integer> nbDeLigne(BufferedImage image) {
 		BufferedImage HistogrameProjection = getHistoProjection(image);
@@ -280,8 +299,9 @@ public class Util {
 		Boolean isWhiteBoolean;
 		int xOuCompter;
 		Vector<Integer> nbLigneVector = new Vector<Integer>();
-		
-		//Calcul du nombre de marches selon une largeur donné en fonction du plus grand pic de l'histogramme (/2,/3 et /4)
+
+		// Calcul du nombre de marches selon une largeur donné en fonction du plus grand
+		// pic de l'histogramme (/2,/3 et /4)
 		for (int k = 2; k <= 4; k++) {
 			nbLigne = 0;
 			xOuCompter = maxWidthHisto / k;
@@ -305,20 +325,22 @@ public class Util {
 	}
 
 	/**
-	 * Fonction qui pour une image donné va, après binarisation et filtrage (median 3x3) 
-	 * la transformer l'image en un histogramme de projection.
-	 * @param image
-	 * @return
+	 * Fonction qui pour une image donné va, après binarisation et filtrage (median
+	 * 3x3) la transformer en un histogramme de projection.
+	 * 
+	 * @param image BufferedImage à transformer en histogramme de projection.
+	 * @return Un BufferedImage qui est l'histogramme de projection de l'image donné
+	 *         en paramètre
 	 */
 	public static BufferedImage getHistoProjection(BufferedImage image) {
-		toBinaire(image, true);
+		toBinaire(image);
 		filtreMedianTroisTrois(image);
 
 		Vector<Float> points = new Vector<Float>();
 		for (int y = 0; y < image.getHeight(); y++) {// pour chaque hauteur, on ajoute un point par pixel présent
 			points.add(y, (float) 0.0);
 			for (int x = 0; x < image.getWidth(); x++) {
-				if (getComponentRGBdepuisRGB(image.getRGB(x, y))[0] == 0) { 
+				if (getComponentRGBdepuisRGB(image.getRGB(x, y))[0] == 0) {
 					points.set(y, points.get(y) + 1);
 				}
 			}
@@ -337,15 +359,22 @@ public class Util {
 
 	}
 
-	public static BufferedImage toBinaire(BufferedImage image, boolean doCalculerSeuil) {
+	/**
+	 * Fonction qui pour une image donné va, après passage de l'image en nuances de
+	 * gris, la binariser selon un seuil calculé ave l'algorithme d'ostu.
+	 * 
+	 * @param image BufferedImage a binariser
+	 * @return Un BufferedImage binarisé.
+	 */
+	public static BufferedImage toBinaire(BufferedImage image) {
 		System.out.println("Calcul de l'image en niveau de gris ...");
 		toGreyScale(image);
 		System.out.println("Calcul de l'image normalisé ...");
 		image = normalise(image);
-		if (doCalculerSeuil) {
-			System.out.println("Calcul Seuil ...");
-			seuil = ostu(image);
-		}
+
+		System.out.println("Calcul Seuil ...");
+		seuil = ostu(image);
+
 		System.out.println("seuil : " + seuil);
 
 		for (int x = 0; x < image.getWidth(); x++) {
@@ -358,6 +387,8 @@ public class Util {
 			}
 		}
 		imshow(image, "image en niveau de gris + normalisé + binarisé");
+
+		// On fait une copie de l'image binarisé que l'on met en static
 		imageTemp = new BufferedImage(image.getWidth(), image.getHeight(), BufferedImage.TYPE_INT_ARGB);
 		for (int x = 0; x < image.getWidth(); x++) {
 			for (int y = 0; y < image.getHeight(); y++) {
@@ -368,6 +399,13 @@ public class Util {
 		return image;
 	}
 
+	/**
+	 * Fonction qui permet pour une image donné de la transformer une image en
+	 * nuances de gris
+	 * 
+	 * @param image BufferedImage a transformer en image en nuances de gris
+	 * @return Un BufferedImage en nuances de gris
+	 */
 	public static BufferedImage toGreyScale(BufferedImage image) {
 		float moyenneRGB;
 		int[] RGBPixel;
@@ -384,6 +422,12 @@ public class Util {
 		return image;
 	}
 
+	/**
+	 * Fonction qui normalise une image donnée
+	 * 
+	 * @param image BufferedImage à normaliser
+	 * @return Un BufferedImage normalisé
+	 */
 	public static BufferedImage normalise(BufferedImage image) {
 		int w = image.getWidth();
 		int h = image.getHeight();
@@ -416,22 +460,40 @@ public class Util {
 		return myImage;
 	}
 
-	public static BufferedImage filtreMedianTroisTrois(BufferedImage image) {
+	/**
+	 * Fonction qui va appliquer un filtre médian 3x3 sur une image BINAIRE donnée.
+	 * Cette fonction requiert l'appel de la binarisation pour fonctionner. En
+	 * effet, elle a besoin d'une copie de l'image binarisé dans le programme pour
+	 * éviter de prendre des valeurs érronés.
+	 * 
+	 * @param image BufferedImage sur laquelle on va appliquer le filtre médian
+	 * @return Un BufferedImage ou on a appliqué un filtre médian
+	 */
+	public static BufferedImage filtreMedianTroisTrois(BufferedImage imageBinaire) {
 		System.out.println("Calcul image filtré au filtre médian 3x3 ...");
-		int w = image.getWidth();
-		int h = image.getHeight();
+		int w = imageBinaire.getWidth();
+		int h = imageBinaire.getHeight();
 		int valeurMediane;
 
 		for (int l = 1; l < h - 1; l++) {
 			for (int c = 1; c < w - 1; c++) {
-				valeurMediane = trouverMediane(imageTemp, l, c);
-				image.setRGB(c, l, new Color(valeurMediane, valeurMediane, valeurMediane).getRGB());
+				valeurMediane = trouverMediane(imageTemp, l, c); // utilisation de l'image mise en static
+				imageBinaire.setRGB(c, l, new Color(valeurMediane, valeurMediane, valeurMediane).getRGB());
 			}
 		}
 
-		return image;
+		return imageBinaire;
 	}
 
+	/**
+	 * Fonction qui va pour une image BINAIRE et des coordonnées données, retourner
+	 * la médiane (255 ou 0 dans le cas d'une image binaire)
+	 * 
+	 * @param image BufferedImage ou prendre les valeurs
+	 * @param l     int qui est la coordonnée sur les lignes
+	 * @param c     int qui est la coordonnée sur les colonnes
+	 * @return un int de valeur 255 ou 0 (l'image est binaire)
+	 */
 	public static int trouverMediane(BufferedImage image, int l, int c) {
 
 		int somme = Util.getComponentRGBdepuisRGB(image.getRGB(c, l))[0]

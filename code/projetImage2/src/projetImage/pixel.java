@@ -1,8 +1,20 @@
 package projetImage;
 
+/**
+ * Classe permettant de représenter un pixel
+ * @author davidpinaud
+ *
+ */
 public class pixel {
+	
 	int x,y;
 	int[] RGB;
+	/**
+	 * Constructeur de la classe
+	 * @param x abscisse du pixel
+	 * @param y ordonnée du pixel
+	 * @param rGB tableau d'entiers représentant les niveaux RGB du pixel du type [rouge,vert,bleu,alpha]
+	 */
 	public pixel(int x, int y, int[] rGB) {
 		super();
 		this.x = x;
