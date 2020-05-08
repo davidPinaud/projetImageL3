@@ -174,7 +174,7 @@ public class Util {
 	 * d'un pixel sous la forme d'une tableau de composantes :
 	 * [rouge,vert,bleu,alpha]
 	 * 
-	 * @param c Une couleur de type Color
+	 * @param RGB int étant la composante RGB à décomposer
 	 * @return Un tableau d'entier qui sont les composantes du RGB
 	 */
 	public static int[] getComponentRGBdepuisRGB(int RGB) {
@@ -218,7 +218,7 @@ public class Util {
 	 * seulement binariser l'image.
 	 * 
 	 * @param image Une image en niveau de gris
-	 * @return
+	 * @return un int étant le seuil optimal pour binariser l'image
 	 */
 	public static int ostu(BufferedImage image) {
 		int w = image.getWidth();
@@ -466,7 +466,7 @@ public class Util {
 	 * effet, elle a besoin d'une copie de l'image binarisé dans le programme pour
 	 * éviter de prendre des valeurs érronés.
 	 * 
-	 * @param image BufferedImage sur laquelle on va appliquer le filtre médian
+	 * @param imageBinaire BufferedImage sur laquelle on va appliquer le filtre médian
 	 * @return Un BufferedImage ou on a appliqué un filtre médian
 	 */
 	public static BufferedImage filtreMedianTroisTrois(BufferedImage imageBinaire) {
